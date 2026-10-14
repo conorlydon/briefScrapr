@@ -145,6 +145,7 @@ def repositories(request: Request, page: int = 1):
                            params={"per_page": 100, "page": page, "sort": "updated"})
     return {"repositories": [{"full_name": repo["full_name"], "private": repo["private"]}
                              for repo in repos if repo.get("has_issues") and not repo.get("archived")
+                             and (GITHUB_SCOPE == "repo" or not repo.get("private"))
                              and repo.get("permissions", {}).get("push")], "has_more": len(repos) == 100}
 
 
@@ -154,7 +155,7 @@ class Issue(BaseModel):
 
 
 class IssueBatch(BaseModel):
-    repository: str = Field(pattern=r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+    repository: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9_.-]+$")
     issues: list[Issue] = Field(min_length=1, max_length=50)
 
 
@@ -162,9 +163,13 @@ class IssueBatch(BaseModel):
 def create_issues(batch: IssueBatch, request: Request):
     session = session_for(request)
     check_csrf(request, session)
+    if batch.repository.split("/")[1] in (".", ".."):
+        raise HTTPException(400, "Invalid repository name.")
     created, errors = [], []
     # Keep successful creations so a partial retry cannot duplicate them in this session.
     with lock:
+        issue_lock = session.setdefault("issue_lock", threading.Lock())
+    with issue_lock:
         repo = github_request(session["token"], "GET", f"/repos/{batch.repository}")
         if not repo.get("has_issues") or repo.get("archived") or not repo.get("permissions", {}).get("push"):
             raise HTTPException(403, "Choose a repository with write access and issues enabled.")
