@@ -1,4 +1,7 @@
 fastapi
+ollama
+pydantic
 uvicorn[standard]
 pypdf
 python-multipart
+httpx

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BriefScrapr</title>
+    <link rel="stylesheet" href="/assets/styles.css?v=plan-github-3" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace">
+        <div class="intro">
+          <p class="eyebrow">BriefScrapr</p>
+          <h1>Turn a project brief PDF into a structured build plan.</h1>
+          <p class="summary">
+            Upload a text-based college project brief and get the required languages,
+            technologies, requirements, components, and deliverables.
+          </p>
+        </div>
+
+        <form id="upload-form" class="upload-panel">
+          <label class="drop-zone" for="brief-file">
+            <span class="drop-title">Choose a PDF brief</span>
+            <span id="file-label" class="drop-copy">Drag one here, or click to browse</span>
+            <input id="brief-file" name="file" type="file" accept="application/pdf" required />
+          </label>
+          <button id="analyse-button" type="submit">Analyse brief</button>
+          <p id="status" class="status" role="status"></p>
+          <div id="analysis-progress" hidden>
+            <progress id="progress-bar" max="1" value="0" aria-label="Sections completed"></progress>
+            <ol id="progress-log" class="progress-log" aria-label="Analysis activity"></ol>
+          </div>
+        </form>
+      </section>
+      <section class="github-panel">
+        <h2 class="panel-title">GitHub</h2>
+        <p id="github-status" role="status">Checking connection…</p>
+        <a id="github-login" class="action-link" href="/api/github/login" hidden>Sign in with GitHub</a>
+        <button id="github-logout" type="button" hidden>Disconnect</button>
+      </section>
+
+      <section id="results" class="results" hidden>
+        <div class="result-header">
+          <div>
+            <p class="eyebrow">Analysis</p>
+            <label for="project-name">Project name</label>
+            <input id="project-name" class="project-title" />
+          </div>
+          <span id="filename" class="filename"></span>
+        </div>
+
+        <label for="description">Project summary</label>
+        <textarea id="description" rows="4"></textarea>
+        <p class="edit-hint">Edit the plan below. Put one item on each line.</p>
+        <button id="download-markdown" type="button">Download Markdown</button>
+        <details class="source-panel">
+          <summary>Compare with extracted brief text</summary>
+          <p>Check every major section of the brief against the plan. Correct missing or misplaced items before exporting.</p>
+          <pre id="source-text"></pre>
+        </details>
+
+        <div class="result-grid">
+          <article>
+            <h3><label for="languages">Languages</label></h3>
+            <textarea id="languages" rows="5"></textarea>
+          </article>
+          <article>
+            <h3><label for="technologies">Technologies</label></h3>
+            <textarea id="technologies" rows="5"></textarea>
+          </article>
+          <article>
+            <h3><label for="requirements">Requirements</label></h3>
+            <textarea id="requirements" rows="8"></textarea>
+          </article>
+          <article>
+            <h3><label for="components">Components</label></h3>
+            <textarea id="components" rows="6"></textarea>
+          </article>
+          <article>
+            <h3><label for="deliverables">Deliverables</label></h3>
+            <textarea id="deliverables" rows="6"></textarea>
+          </article>
+        </div>
+        <section id="issue-panel" class="github-panel" hidden>
+          <h3>Create GitHub issues</h3>
+          <label for="github-repository">Repository</label>
+          <select id="github-repository"><option value="">Choose a repository</option></select>
+          <button id="preview-issues" type="button">Preview requirements as issues</button>
+          <p>Select the requirements you want to create as issues. You can edit each title and description.</p>
+          <div id="issue-preview"></div>
+          <button id="create-issues" type="button" disabled>Create selected issues</button>
+          <p id="issue-status" role="status"></p>
+          <ul id="created-issues"></ul>
+        </section>
+      </section>
+    </main>
+
+    <script src="/assets/app.js?v=plan-github-3" type="module"></script>
+  </body>
+</html>
